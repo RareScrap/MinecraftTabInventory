@@ -19,7 +19,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.2.0"
+version = "0.2.1"
 group= "ru.rarescrap.tabinventory" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "minecraft-tab-inventory-lib"
 def publicationVersion = version+'_1.7.10'
@@ -64,16 +64,23 @@ processResources {
     }
 }
 
+// Формирует jar'ник только для api-модуля
+task apiJar(type: Jar) {
+    from sourceSets.api.output
+    //classifier = 'api' // Нам не нужно классифицировать его, т.к. в данном случае apiJar является артефактом по умолчанию
+}
+
 // Подготавливает maven-публикацию, которая будет использоваться в bintray
 // Именно тут определяются артефакты для публикации
 apply plugin: 'maven-publish'
 publishing {
     publications {
         BintrayPublication(MavenPublication) {
-            from components.java
+            //from components.java // Артефакты по умолчанию. Отлючаем их, т.к. нам нужно артефакт main-модуля заменить на артефакт от api-модуля
             groupId group
             artifactId archivesBaseName
             version publicationVersion
+            artifact apiJar
         }
     }
 }
