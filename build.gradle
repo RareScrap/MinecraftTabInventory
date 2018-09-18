@@ -1,5 +1,6 @@
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
         maven {
             name = "forge"
@@ -12,14 +13,16 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.1'  // 1.8.4 не юзается, т.к. он не работает нифига
     }
 }
 
 apply plugin: 'forge'
 
-version = "1.0"
+version = "0.2.0"
 group= "ru.rarescrap.tabinventory" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "modid"
+archivesBaseName = "minecraft-tab-inventory-lib"
+def publicationVersion = version+'_1.7.10'
 
 minecraft {
     version = "1.7.10-10.13.4.1558-1.7.10"
@@ -42,8 +45,7 @@ dependencies {
 
 }
 
-processResources
-{
+processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
@@ -59,5 +61,37 @@ processResources
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
+    }
+}
+
+// Подготавливает maven-публикацию, которая будет использоваться в bintray
+// Именно тут определяются артефакты для публикации
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        BintrayPublication(MavenPublication) {
+            from components.java
+            groupId group
+            artifactId archivesBaseName
+            version publicationVersion
+        }
+    }
+}
+
+// Публикация либы в bintray/jcenter
+apply plugin: 'com.jfrog.bintray'
+bintray {
+    user = 'rarescrap'
+    key = System.getenv('BINTRAY_KEY')
+    publications = ['BintrayPublication']
+    pkg {
+        repo = 'minecraft'
+        name = 'minecraft-tab-inventory'
+        licenses = ['GPL-3.0']
+        vcsUrl = 'https://github.com/RareScrap/MinecraftTabInventory.git'
+        version {
+            name = publicationVersion
+            released  = new Date()
+        }
     }
 }
