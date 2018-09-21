@@ -1,8 +1,9 @@
-package ru.rarescrap.tabinventory;
+package ru.rarescrap.tabinventory.network;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import ru.rarescrap.tabinventory.TabHostInventory;
 
 public abstract class TabMessageHandler implements IMessageHandler<TabHostInventory.SetCurrentTabPacket, IMessage> {
 

@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import ru.rarescrap.tabinventory.events.StackAddToTabEvent;
+import ru.rarescrap.tabinventory.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Random;
