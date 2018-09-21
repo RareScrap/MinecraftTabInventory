@@ -7,7 +7,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
+import ru.rarescrap.tabinventory.events.StackAddToTabEvent;
+import ru.rarescrap.tabinventory.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -93,6 +96,13 @@ public class TabInventory implements IInventory {
             itemStack.stackSize = getInventoryStackLimit();
         }
 
+        // Шлём эвент об изменение инвентаря
+        ItemStack previousStack = items.get(currentTabKey).stacks[slotIndex];
+        if (previousStack != null) {
+            previousStack = items.get(currentTabKey).stacks[slotIndex].copy();
+        }
+        MinecraftForge.EVENT_BUS.post(new StackAddToTabEvent(inventoryOwnerEntity, previousStack, itemStack, slotIndex)); // TODO: Юзать ли эвенты или использовать интерфейс IInvBasic? В других реализациях инвентаря (InventoryBasic, например) объекты этого интерфейса используются чтобы информировать об изменении инвентаря
+
         // Добавляем стак в хранилище
         items.get(currentTabKey).stacks[slotIndex] = itemStack;
 
@@ -124,12 +134,14 @@ public class TabInventory implements IInventory {
             ItemStack[] stacks = tab.stacks;
 
             for (int i = 0; i < stacks.length; i++) {
-                if (stacks[i] != null && stacks[i].stackSize == 0) {
+                if (stacks[i] != null && stacks[i].stackSize == 0) { // TODO: Это вообще возможно?
+                    throw new RuntimeException("ДА! ЭТО ВОЗМОЖНО!"); // TODO: НИ В КОЕМ СЛУЧАЕ НЕ ТОЛКАТЬ В ПРОД!
                     tab.stacks[i] = null;
                 }
             }
         }
 
+        // TODO: У других реализация markDirty не прописывает сохранение на диск. Эта строка тут точно нужна?
         // TODO: Проверить при помощи NBTEdit как мод ведет себя без этой строки
         // Сохраняем изменившиеся данные
         writeToNBT(inventoryOwnerEntity.getEntityData());

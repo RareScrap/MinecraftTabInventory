@@ -2,7 +2,6 @@ package ru.rarescrap.tabinventory;
 
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
@@ -12,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
+import ru.rarescrap.tabinventory.network.TabMessageHandler;
 
 /**
  * Инвентарь, хранящий вкладки. Каждый предмет в инвентаре является ключом, по корому устанавливается содержимое
@@ -134,7 +134,7 @@ public class TabHostInventory extends InventoryBasic {
      * @param discriminator Дискриминатор ID (ДОЛЖЕН БЫТЬ УНИКАЛЕН ДЛЯ ВСЕХ ОСТАЛЬНЫХ ПАКЕТОВ ВАШЕГО МОДА)
      * @see "https://mcforge.readthedocs.io/en/latest/networking/simpleimpl/#registering-packets"
      */
-    public static void registerHandler(SimpleNetworkWrapper networkWrapper, Class<? extends IMessageHandler<SetCurrentTabPacket, IMessage>> handler, int discriminator) {
+    public static void registerHandler(SimpleNetworkWrapper networkWrapper, Class<? extends TabMessageHandler> handler, int discriminator) {
         if (isHandlerRegistered) {
             throw new RuntimeException("Handler is already registered!");
         } else {
@@ -169,11 +169,11 @@ public class TabHostInventory extends InventoryBasic {
      */
     public static class SetCurrentTabPacket implements IMessage {
         /** Имя инвентарая-хоста вкладок, который отсылает сообщение */
-        String callerInventoryName;
+        public String callerInventoryName;
         /** Имя инвентаря {@link TabInventory}, который должен получить сообщение */
-        String targetInventoryName;
+        public String targetInventoryName;
         /** Имя вкладки, которую должен выставить {@link TabInventory} с именем {@link #targetInventoryName} */
-        String newCurrentTabName;
+        public String newCurrentTabName;
 
         /**
          * Необходимый конструктор по умолчанию. Он необходим для того, чтобы на

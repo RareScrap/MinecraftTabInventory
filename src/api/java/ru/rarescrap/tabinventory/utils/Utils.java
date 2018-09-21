@@ -1,4 +1,4 @@
-package ru.rarescrap.tabinventory;
+package ru.rarescrap.tabinventory.utils;
 
 import java.util.Map;
 

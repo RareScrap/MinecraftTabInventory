@@ -1,24 +1,29 @@
-package ru.rarescrap.tabinventory;
+package ru.rarescrap.tabinventory.network;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import ru.rarescrap.tabinventory.TabHostInventory;
 
-// TODO: Класс сделать абстрактным, а реализацию onMessage() поручить наследникам
-public class TabMessageHandler implements IMessageHandler<TabHostInventory.SetCurrentTabPacket, IMessage> {
+public abstract class TabMessageHandler implements IMessageHandler<TabHostInventory.SetCurrentTabPacket, IMessage> {
 
     public TabMessageHandler() {
     }
 
     @Override
     public IMessage onMessage(TabHostInventory.SetCurrentTabPacket message, MessageContext ctx) {
-        //ExtendedPlayer extendedPlayer = ExtendedPlayer.get(ctx.getServerHandler().playerEntity);
+        processMessage(message, ctx);
 
-        //extendedPlayer.otherTabsInventory.setCurrentTab(message.newCurrentTabName);
         // Необходимо принудительно проинформировать клиента об изменении
         if (ctx.getServerHandler().playerEntity.openContainer != null)
             ctx.getServerHandler().playerEntity.openContainer.detectAndSendChanges();
 
         return null;
     }
+
+    public abstract void processMessage(TabHostInventory.SetCurrentTabPacket message, MessageContext ctx); //{
+        //ExtendedPlayer extendedPlayer = ExtendedPlayer.get(ctx.getServerHandler().playerEntity);
+
+        //extendedPlayer.otherTabsInventory.setCurrentTab(message.newCurrentTabName);
+    //}
 }
