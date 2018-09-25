@@ -70,6 +70,17 @@ task apiJar(type: Jar) {
     //classifier = 'api' // Нам не нужно классифицировать его, т.к. в данном случае apiJar является артефактом по умолчанию
 }
 
+// TODO: Разобраться как генерить source и javadoc jar'ники. И зачем они вообще нужны?
+//task sourcesJar(type: Jar, dependsOn: classes) {
+//    classifier = 'sources'
+//    from sourceSets.main.allSource
+//}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
 // Подготавливает maven-публикацию, которая будет использоваться в bintray
 // Именно тут определяются артефакты для публикации
 apply plugin: 'maven-publish'
@@ -81,6 +92,8 @@ publishing {
             artifactId archivesBaseName
             version publicationVersion
             artifact apiJar
+            //artifact sourcesJar
+            artifact javadocJar
         }
     }
 }
@@ -102,3 +115,8 @@ bintray {
         }
     }
 }
+
+// Это помогает исправить баг с обнаружением текстур при работе в intellij
+// Баг проявляется только есть запустить игру через Minecraft Client - встроенную опцию
+// Не требуется в NetBeans
+idea { module { inheritOutputDirs = true } }
