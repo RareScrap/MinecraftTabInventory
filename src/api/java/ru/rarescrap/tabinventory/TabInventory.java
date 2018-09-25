@@ -135,7 +135,7 @@ public class TabInventory implements IInventory {
 
             for (int i = 0; i < stacks.length; i++) {
                 if (stacks[i] != null && stacks[i].stackSize == 0) { // TODO: Это вообще возможно?
-                    throw new RuntimeException("ДА! ЭТО ВОЗМОЖНО!"); // TODO: НИ В КОЕМ СЛУЧАЕ НЕ ТОЛКАТЬ В ПРОД!
+                    //throw new RuntimeException("ДА! ЭТО ВОЗМОЖНО!"); // TODO: НИ В КОЕМ СЛУЧАЕ НЕ ТОЛКАТЬ В ПРОД!
                     tab.stacks[i] = null;
                 }
             }
@@ -233,7 +233,7 @@ public class TabInventory implements IInventory {
                 NBTTagCompound item = tabItemsList.getCompoundTagAt(i1);
                 byte slot = item.getByte("Slot");
                 if (slot >= 0 && slot < getSizeInventory()) {
-                    itemStacks[i1] = ItemStack.loadItemStackFromNBT(item); // TODO: Пофиксить баг со "сползающим" инвентарем
+                    itemStacks[slot] = ItemStack.loadItemStackFromNBT(item); // TODO: Пофиксить баг со "сползающим" инвентарем
                 }
             }
             addTab(tabName, itemStacks);
@@ -265,6 +265,10 @@ public class TabInventory implements IInventory {
         if (currentTabKey == null) {
             currentTabKey = tabName;
         }
+    }
+
+    public boolean hasTab(String tabName) {
+        return items.get(tabName) != null;
     }
 
     // debug
