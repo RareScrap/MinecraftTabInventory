@@ -52,7 +52,7 @@ public class BagContainer extends Container {
     private void addSlots() {
         // Расставляем слоты на панели вкладок
         for (int i = 0, slotIndex = 0; i < tabHostInventory.getSizeInventory(); ++i, slotIndex++) {
-            this.addSlotToContainer(new Slot(tabHostInventory, i, (i*18 +8) +1, 9) {
+            this.addSlotToContainer(new Slot(tabHostInventory, i, (i*18 +8) +0, 7) {
                 @Override
                 public boolean isItemValid(ItemStack p_75214_1_) {
                     return tabHostInventory.isUseableByPlayer(player);
@@ -67,7 +67,7 @@ public class BagContainer extends Container {
                 this.addSlotToContainer(new Slot(tabInventory, x + y * 9 /*+ 9*/, (x*18 +8) +0, (y * 18) + 25) {
                     @Override
                     public boolean isItemValid(ItemStack p_75214_1_) {
-                        return tabInventory.isUseableByPlayer(player);
+                        return true;
                     }
                 });
             }
@@ -79,6 +79,19 @@ public class BagContainer extends Container {
         return true;
     }
 
+    @Override
+    public ItemStack slotClick(int slotId, int dragType, int clickTypeIn, EntityPlayer player) {
+        if (slotId >= 0 // slotId may be -999
+                && ((Slot) inventorySlots.get(slotId)).inventory == tabHostInventory
+                && !tabHostInventory.isUseableByPlayer(player)) {
+            return null;
+        } else {
+            return super.slotClick(slotId, dragType, clickTypeIn, player);
+        }
+    }
+
+    /* Хотя этот метод и выполняется на стороне клиента, сохранять данные в nbt тут можно, т.к. итем
+     * будет синхронизирован автоматически */
     @Override
     public void onContainerClosed(EntityPlayer p_75134_1_) {
         heldBag.setTagCompound(new NBTTagCompound());

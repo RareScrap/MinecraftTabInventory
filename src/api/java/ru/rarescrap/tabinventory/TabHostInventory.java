@@ -47,10 +47,19 @@ public class TabHostInventory extends InventoryBasic {
 
     @Override
     public void setInventorySlotContents(int slotIndex, ItemStack itemStack) {
-        if (itemStack != null) {
+        if (itemStack != null && !tabInventory.hasTab(itemStack.getUnlocalizedName()))
             tabInventory.addTab(itemStack.getUnlocalizedName());
-            super.setInventorySlotContents(slotIndex, itemStack);
-        }
+
+        super.setInventorySlotContents(slotIndex, itemStack);
+    }
+
+    /* Вызывается, когда стак "забирается из слота". Вопреки заблуждению "забирание" стака
+     * делается через этот метод, а не setInventorySlotContents(?, null), Хотя вызов
+     * setInventorySlotContents с null-параметром так же возможен, но не для этих целей. */
+    // Оставлен справки ради
+    @Override
+    public ItemStack decrStackSize(int p_70298_1_, int p_70298_2_) {
+        return super.decrStackSize(p_70298_1_, p_70298_2_);
     }
 
     /* Этот метод не вызывается автоматически. Мы сами должны вызывать его где нам нужно.
