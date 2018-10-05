@@ -20,7 +20,7 @@ public class NetworkUtils {
      *         модами для регистрации их пакетов.
      * @see "https://mcforge.readthedocs.io/en/latest/networking/simpleimpl/#registering-packets"
      */
-    public int registerMessages(SimpleNetworkWrapper chanel, int descriminator) {
+    public static int registerMessages(SimpleNetworkWrapper chanel, int descriminator) {
         chanel.registerMessage(SetTabSlotMessage.MessageHandler.class, SetTabSlotMessage.class, descriminator++, Side.CLIENT);
         chanel.registerMessage(TabInventoryItemsMessage.MessageHandler.class, TabInventoryItemsMessage.class, descriminator++, Side.CLIENT);
         NETWORK_WRAPPER = chanel;
