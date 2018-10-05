@@ -7,8 +7,8 @@ import cpw.mods.fml.relauncher.Side;
  * Утильный класс, предназначенный для удобного встраивания либы в моды
  */
 public class NetworkUtils {
-    /** Сетевая обертку, которую использует либа MinecraftTabInventory.
-     * Для ее использования выдолжны вывать {@link #registerMessages(SimpleNetworkWrapper, int)}. */
+    /** Сетевая обертку, которую использует либа MinecraftTabInventory для обмена сообщениями между клиентом
+     * и сервером. Для ее использования выдолжны вывать {@link #registerMessages(SimpleNetworkWrapper, int)}. */
     private static SimpleNetworkWrapper NETWORK_WRAPPER;
 
     /**
