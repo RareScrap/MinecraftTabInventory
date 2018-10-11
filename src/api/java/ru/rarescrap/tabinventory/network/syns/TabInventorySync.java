@@ -3,10 +3,12 @@ package ru.rarescrap.tabinventory.network.syns;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import ru.rarescrap.tabinventory.TabContainer;
+import ru.rarescrap.tabinventory.SupportTabs;
 import ru.rarescrap.tabinventory.TabInventory;
 import ru.rarescrap.tabinventory.network.SetTabSlotMessage;
+import ru.rarescrap.tabinventory.network.TabClickWindowMessage;
 import ru.rarescrap.tabinventory.network.TabInventoryItemsMessage;
 
 import java.util.ArrayList;
@@ -15,21 +17,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Класс, занимающийся синхронизацией {@link TabInventory} с клиентом. Спроектирован таким образом,
- * чтобы с сервера слать пакеты на клиент (т.е. создание объекта на клиенте - дело бесполезное)
+ * Класс, занимающийся синхронизацией контейнеров с {@link TabInventory}'ями
+ * с клиента на сервер и наоборот
  */
-public class TabInventorySync {
+public class TabInventorySync<T extends Container & SupportTabs.Container> {
     /** Сетевая обертка для пересылки пакетов с сервера на клиент */
-    private final SimpleNetworkWrapper networkWrapper;
+    private final SimpleNetworkWrapper networkWrapper; // TODO: Оставить поле или получить из NetworkUtils#getNetworkWrapper()
 
     /** Мапа объектов синхронизации в формате "СЕРВЕРНЫЙ ИНВЕНТАРЬ->КЛИЕНТСКИЙ ИНВЕНТАРЬ" */
     private Map<TabInventory, TabInventory> syncState = new HashMap<TabInventory, TabInventory>(); // TODO: Что делать, если игрок закроет контейнер и попытается открыть его заново? Где-то же должно на клиенте хранится уже высланное содержимое! (нет, не должен. Сам майн так не делает)
 
-    public int windowId; // TODO: Или хранить связанный контейнер? (пожалуй да, т.к. мне нужены еще и игроки к которым слать пакеты. Возьму их из Container#crafters. А ВОТ ЪУЙ ТАМ - он protected)
+    /* Хранить только windowsId не вариант, т.к. контейнер может его обновить. И чтобы не уродовать методы
+     * еще одним int полем, мы будем хранить ссылку на контейнер, который будет синхронизироваться чере
+     * данный TabInventorySync. */
+    /** Контейнер инвентарей со вкладками, которые использует данный TabInventorySync для синхронизации */
+    private T tabContainer;
 
-    public TabInventorySync(SimpleNetworkWrapper networkWrapper, int windowId) {
+
+    public TabInventorySync(SimpleNetworkWrapper networkWrapper, T tabContainer) {
         this.networkWrapper = networkWrapper;
-        this.windowId = windowId;
+        this.tabContainer = tabContainer;
     }
 
     /**
@@ -48,7 +55,8 @@ public class TabInventorySync {
         TabInventory clientInv = new TabInventory(
                 serverInv.getInventoryName(),
                 serverInv.getSizeInventory(),
-                null); // Владелец нам не нужен
+                null, // TODO: Почему бы и не создать владельца?
+                serverInv.host); // Владелец нам не нужен
         for (Map.Entry<String, TabInventory.Tab> entry : serverInv.items.entrySet()) {
             String tabName = entry.getKey();
             clientInv.addTab(tabName);
@@ -84,7 +92,7 @@ public class TabInventorySync {
         for (Map.Entry<String, TabInventory.Tab> serverTabEntry : serverInv.items.entrySet()) {
 
             TabInventory.Tab serverTab = serverTabEntry.getValue();
-            TabInventory.Tab clientTab = clientInv.items.get(clientInvName);
+            TabInventory.Tab clientTab = clientInv.items.get(serverTab.name);
 
             changes.addAll(detectChanges(clientTab, serverTab));
         }
@@ -144,7 +152,7 @@ public class TabInventorySync {
      */
     private void sendChanges(EntityPlayerMP player, List<Change> changes) {
         for (Change change : changes) { // TODO: Майн отсылает изменения в слотах по однмоу пакету. Стоит ли мне делать так же?
-            networkWrapper.sendTo(new SetTabSlotMessage(windowId, change), player);
+            networkWrapper.sendTo(new SetTabSlotMessage(tabContainer.windowId, change), player);
         }
     }
 
@@ -160,17 +168,22 @@ public class TabInventorySync {
 
         // Применяем изменения
         for (Change change : changes) {
-            TabInventory suitableClientInv = temp.get(change.inventoryName);
+            TabInventory serverInv = temp.get(change.inventoryName);
+            TabInventory suitableClientInv = this.syncState.get(serverInv);
             TabInventory.Tab suitableTab = suitableClientInv.getTab(change.tabName);
             suitableTab.setSlotContent(change.slotIndex, change.actualItemStack);
         }
     }
 
-    public void sendContainerAndContentsToPlayer(TabContainer tabContainer, EntityPlayerMP player) {
+    public void sendContainerAndContentsToPlayer(Container tabContainer, EntityPlayerMP player) { // TODO: Как обозначить, что container должен реализовывать SupportTabs?
         for (Map.Entry<TabInventory, TabInventory> entry : syncState.entrySet()) {
             // Отослать нужно клиентский инвентарь, т.к. именно он есть у других игроков в данный момент времени
             TabInventoryItemsMessage message = new TabInventoryItemsMessage(entry.getValue(), tabContainer.windowId); // TODO: у меня же есть уже windowId. Следует ли мне запрашивать контейнер? Хотя по большому счету я старался сделать этот метод похожим на ICrafting#sendContainerAndContentsToPlayer для более удобного способа вызова из Container#addCraftingToCrafters
             networkWrapper.sendTo(message, player);
         }
+    }
+
+    public void sendSlotClick(Slot slotIn, int slotId, int mouseButton, int type, ItemStack clickedItemIn, short actionNumberIn, String tabName) {
+        networkWrapper.sendToServer(new TabClickWindowMessage(tabContainer.windowId, slotId, mouseButton, type, clickedItemIn, actionNumberIn, tabName));
     }
 }
