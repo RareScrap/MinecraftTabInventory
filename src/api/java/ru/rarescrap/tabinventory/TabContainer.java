@@ -42,10 +42,10 @@ public abstract class TabContainer extends Container
     implements SupportTabs.Container {
 
     public Map<String, TabInventory> tabInventories = new HashMap<String, TabInventory>();
-    protected TabInventorySync sync;
+    protected TabInventorySync<TabContainer> sync;
 
     public TabContainer() {
-        this.sync = new TabInventorySync(NetworkUtils.getNetworkWrapper(), windowId);
+        this.sync = new TabInventorySync<TabContainer>(NetworkUtils.getNetworkWrapper(), this);
     }
 
     @Override
