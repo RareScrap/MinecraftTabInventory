@@ -79,7 +79,7 @@ public class TabClickWindowMessage implements IMessage {
             if (message.windowId == entityPlayerMP.openContainer.windowId) {
                 SupportTabs.Container container = (SupportTabs.Container) ctx.getServerHandler().playerEntity.openContainer; // TODO: намеренно не делаю проверку т.к. мне интеренсо возможен ли тут краш?
                 String invName = ((Container) container).getSlot(message.slotId).inventory.getInventoryName();
-                container.getTabInventory(invName).setCurrentTab(message.tabName); // TODO: Это нормально вообще?
+                container.getTabInventory(invName).setCurrentTab(message.tabName); // TODO: Это нормально вообще? Или юзать TabInventory#setInventorySlotContents(int, ItemStack, String)?
 
                 C0EPacketClickWindow packet = new C0EPacketClickWindow(
                         entityPlayerMP.openContainer.windowId,
