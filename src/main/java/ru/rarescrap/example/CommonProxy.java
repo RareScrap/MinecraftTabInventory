@@ -10,8 +10,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import ru.rarescrap.example.gui.BagContainer;
-import ru.rarescrap.example.network.TabHandler;
-import ru.rarescrap.tabinventory.TabHostInventory;
+import ru.rarescrap.tabinventory.network.NetworkUtils;
 
 import static ru.rarescrap.example.TabInventoryExample.instance;
 import static ru.rarescrap.example.TabInventoryExample.proxy;
@@ -23,7 +22,7 @@ public class CommonProxy implements IGuiHandler {
     public void preInit(FMLPreInitializationEvent event) {
         GameRegistry.registerItem(BagItem.ITEM, BagItem.ITEM.getUnlocalizedName());
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
-        TabHostInventory.registerHandler(INSTANCE, TabHandler.class, 0);
+        NetworkUtils.registerMessages(INSTANCE, 0);
     }
 
     public void init(FMLInitializationEvent event) {
