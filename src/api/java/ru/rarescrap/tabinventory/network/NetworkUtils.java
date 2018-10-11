@@ -8,7 +8,7 @@ import cpw.mods.fml.relauncher.Side;
  */
 public class NetworkUtils {
     /** Сетевая обертку, которую использует либа MinecraftTabInventory для обмена сообщениями между клиентом
-     * и сервером. Для ее использования выдолжны вывать {@link #registerMessages(SimpleNetworkWrapper, int)}. */
+     * и сервером. Для ее использования вы должны вывать {@link #registerMessages(SimpleNetworkWrapper, int)}. */
     private static SimpleNetworkWrapper NETWORK_WRAPPER;
 
     /**
@@ -23,6 +23,7 @@ public class NetworkUtils {
     public static int registerMessages(SimpleNetworkWrapper chanel, int descriminator) {
         chanel.registerMessage(SetTabSlotMessage.MessageHandler.class, SetTabSlotMessage.class, descriminator++, Side.CLIENT);
         chanel.registerMessage(TabInventoryItemsMessage.MessageHandler.class, TabInventoryItemsMessage.class, descriminator++, Side.CLIENT);
+        chanel.registerMessage(TabClickWindowMessage.MessageHandler.class, TabClickWindowMessage.class, descriminator++, Side.SERVER);
         NETWORK_WRAPPER = chanel;
         return descriminator;
     }

@@ -5,7 +5,8 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S30PacketWindowItems;
 import ru.rarescrap.tabinventory.SupportTabs;
@@ -24,6 +25,8 @@ public class TabInventoryItemsMessage implements IMessage {
     public String inventoryName;
     /** Предметы инвентаря в формате ИМЯ_ВКЛАДКИ->СОДЕРЖИМОЕ_ВКЛАДКИ */
     public Map<String, ItemStack[]> items = new HashMap<String, ItemStack[]>();
+
+    public int tabSize; // TODO: Поддержка вкладок с разнымой вместимостью
     public int windowId;
 
     // for newInstance // TODO: Объявить как Depricated чтобы избежать юзание в других мода и посмотреть будет ли работать.
@@ -32,6 +35,7 @@ public class TabInventoryItemsMessage implements IMessage {
     public TabInventoryItemsMessage(TabInventory tabInventory, int windowId) {
         this.windowId = windowId;
         inventoryName = tabInventory.getInventoryName();
+        tabSize = tabInventory.getSizeInventory();
         for (Map.Entry<String, TabInventory.Tab> entry : tabInventory.items.entrySet()) {
             items.put(entry.getKey(), entry.getValue().stacks);
         }
@@ -41,6 +45,7 @@ public class TabInventoryItemsMessage implements IMessage {
     public void fromBytes(ByteBuf buf) {
         windowId = ByteBufUtils.readVarShort(buf);
         inventoryName = ByteBufUtils.readUTF8String(buf);
+        tabSize = ByteBufUtils.readVarInt(buf, 4);
         int tabCount = ByteBufUtils.readVarShort(buf);
         for (int i = 0; i < tabCount; i++) {
 
@@ -60,6 +65,7 @@ public class TabInventoryItemsMessage implements IMessage {
     public void toBytes(ByteBuf buf) {
         ByteBufUtils.writeVarShort(buf, windowId);
         ByteBufUtils.writeUTF8String(buf, inventoryName);
+        ByteBufUtils.writeVarInt(buf, tabSize, 4);
         ByteBufUtils.writeVarShort(buf, items.size());
         for (Map.Entry<String, ItemStack[]> entry : items.entrySet()) {
 
@@ -79,13 +85,17 @@ public class TabInventoryItemsMessage implements IMessage {
         @Override
         public IMessage onMessage(TabInventoryItemsMessage message, MessageContext ctx) {
 
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            if (player.currentWindowId == message.windowId) {
-                SupportTabs tabContainer = (SupportTabs) player.openContainer; // Намеренно не делаю проверку на каст дабы посмотреть возможен ли он вообще
-                TabInventory tabInventory = tabContainer.getTabInventory(message.inventoryName);
+            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+            if (player.openContainer.windowId == message.windowId) {
+                SupportTabs.Container tabContainer = (SupportTabs.Container) player.openContainer; // Намеренно не делаю проверку на каст дабы посмотреть возможен ли он вообще
 
-                for (Map.Entry<String, ItemStack[]> entry : message.items.entrySet()) {
-                    tabInventory.getTab(entry.getKey()).stacks = message.items.get(entry.getKey());
+                TabInventory tabInventory = tabContainer.getTabInventory(message.inventoryName);
+                if (tabInventory != null) {
+                    for (Map.Entry<String, ItemStack[]> entry : message.items.entrySet()) {
+                        tabInventory.getTab(entry.getKey()).stacks = message.items.get(entry.getKey());
+                    }
+                } else {
+                    System.err.println("В контейнере " + tabContainer.toString() + " не найдет TabInventory с именем " + message.inventoryName);
                 }
             }
 

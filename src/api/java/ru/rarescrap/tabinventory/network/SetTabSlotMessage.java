@@ -5,7 +5,8 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S2FPacketSetSlot;
 import ru.rarescrap.tabinventory.SupportTabs;
@@ -13,14 +14,14 @@ import ru.rarescrap.tabinventory.TabInventory;
 import ru.rarescrap.tabinventory.network.syns.Change;
 
 /**
- * Сообщение, пересылающее на клиент изменения инвентаря на сервере.
+ * Сообщение, пересылающее на клиент изменение инвентаря, произошедшее в одном слоте.
  * Является аналогом {@link S2FPacketSetSlot}, но для инвентарей типа {@link TabInventory}.
  */
 public class SetTabSlotMessage implements IMessage {
     private int windowId;
     private Change change;
 
-    // for newInstance
+    // for reflection newInstance
     public SetTabSlotMessage() {}
 
     public SetTabSlotMessage(int windowId, Change change) {
@@ -52,14 +53,14 @@ public class SetTabSlotMessage implements IMessage {
         @Override
         public IMessage onMessage(SetTabSlotMessage message, MessageContext ctx) {
 
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-             if (player.currentWindowId == message.windowId) {
-                 SupportTabs container = (SupportTabs) player.openContainer; // Намеренно не делаю проверку на каст дабы посмотреть возможен ли он вообще
-                 Change change = message.change;
+            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+            if (player.openContainer.windowId == message.windowId) {
+                SupportTabs.Container container = (SupportTabs.Container) player.openContainer; // Намеренно не делаю проверку на каст дабы посмотреть возможен ли он вообще
+                Change change = message.change;
 
-                 TabInventory tabInventory = container.getTabInventory(change.inventoryName);
-                 tabInventory.getTab(change.tabName).setSlotContent(change.slotIndex, change.actualItemStack);
-             }
+                TabInventory tabInventory = container.getTabInventory(change.inventoryName);
+                tabInventory.getTab(change.tabName).setSlotContent(change.slotIndex, change.actualItemStack);
+            }
 
             return null;
         }
