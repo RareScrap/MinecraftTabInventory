@@ -6,7 +6,7 @@ import ru.rarescrap.tabinventory.network.syns.TabInventorySync;
 
 import java.util.Map;
 
-public abstract class SupportTabs {
+public abstract class SupportTabs { // TODO: Поменять название на ISupportTabs
     /**
      * Реализуйте этот интерфейс для вашего {@link net.minecraft.inventory.Container}, чтобы обеспечить
      * синхронизацию для {@link TabInventory}'рей для вашего контейнера.
