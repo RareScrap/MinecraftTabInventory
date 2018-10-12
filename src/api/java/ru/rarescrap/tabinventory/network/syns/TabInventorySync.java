@@ -84,7 +84,7 @@ public class TabInventorySync<T extends Container & SupportTabs.Container> {
     /**
      * Находит изменения между инвентарями. ВНИМАНИЕ: инвентари должны быть идентичны за исключением контента.
      */
-    public static List<Change> detectChanges(TabInventory clientInv, TabInventory serverInv) {
+    public static List<Change> detectChanges(TabInventory clientInv, TabInventory serverInv) { // TODO: Юнит тесты!
         List<Change> changes = new ArrayList<Change>();
         String clientInvName = serverInv.getInventoryName(); // TODO: Вроде же из clientInv его надо получать, не?
 
@@ -106,7 +106,7 @@ public class TabInventorySync<T extends Container & SupportTabs.Container> {
      * @param serverTab Вкладка на строне сервера. ДОЛЖНА быть идентична clientTab за исключением контента.
      * @return
      */
-    public static List<Change> detectChanges(TabInventory.Tab clientTab, TabInventory.Tab serverTab) {
+    public static List<Change> detectChanges(TabInventory.Tab clientTab, TabInventory.Tab serverTab) { // TODO: Юнит тесты!
         List<Change> changes = new ArrayList<Change>();
 
         // Предполагается, что вместимость обоих вкладок одинакова
