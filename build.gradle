@@ -76,6 +76,10 @@ task apiJar(type: Jar) {
 //    from sourceSets.main.allSource
 //}
 
+javadoc {
+    options.encoding = 'UTF-8' // Поддержка руских букв в доках
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
@@ -120,3 +124,9 @@ bintray {
 // Баг проявляется только есть запустить игру через Minecraft Client - встроенную опцию
 // Не требуется в NetBeans
 idea { module { inheritOutputDirs = true } }
+
+// Устраняет ошибки и предупреждения компиляции из-за русских комментов
+compileJava.options.encoding = 'UTF-8'
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
