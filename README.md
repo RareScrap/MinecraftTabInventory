@@ -30,10 +30,14 @@ dependencies {
 // TODO
 
 3. Синхронизируйте проект и вперед!
-    
-    ./gradlew build
+
+```
+./gradlew build
+```
+
+4. Пример использования библиотеки вы может найти в <a href="https://github.com/RareScrap/MinecraftTabInventory/tree/master/src/main">демонстрационном моде</a>. Так же вы можете посетить <a href="https://github.com/RareScrap/MinecraftTabInventory/wiki">раздел с документацией</a>.
 
 Если вы используете Maven или Ivy, то подходящий конфиг зависимости вы можете найти в <a href="https://bintray.com/rarescrap/minecraft/minecraft-tab-inventory">bintray-репозитории</a>.
 
 ## Остались вопросы?
-Посетите раздел с документацией (TODO: link)
+Задайте его в <a href="https://github.com/RareScrap/MinecraftTabInventory/issues">issues</a>. Я отвечу как только смогу :)
