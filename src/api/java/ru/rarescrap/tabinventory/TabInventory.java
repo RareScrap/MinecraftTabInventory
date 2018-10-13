@@ -25,23 +25,30 @@ public class TabInventory implements IInventory {
     /** Вместимость каждой вкладки */
     private int tabSlotsCount;
     /** Имя текущей откртой вкладки */
-    private String currentTabKey;
+    private String currentTabKey; // TODO: А что с TabHostInvetory#currentTab? Зачем два поля под текущую вкладку? Нужно с этим разобраться.
     /** Хранилище вкладок с предметами */
-    private HashMap<String, Tab> items = new HashMap<String, Tab>();
-
+    public HashMap<String, Tab> items = new HashMap<String, Tab>();
     /** Сущность, к которой привязан инвентарь */
-    private Entity inventoryOwnerEntity; // TODO: Добавить такое же поле к TabHostInventory
+    private Entity inventoryOwnerEntity; // TODO: Добавить такое же поле к TabHostInventory?
+    /** Хост для данного инвентаря */ // TODO: Зачем?
+    public final TabHostInventory host;
 
     /**
      * Конструктор, создающий инвентарь с указанными параметрами. После взова конструктора, вам
      * следует добавить в инвентарь вкладки вызовом метода {@link #addTab(String)}.
      * @param inventoryName Имя инвентарая, которое будет использовано при сохранении его содержимого в NBT
      * @param tabSlotsCount Вместимость каждой вкладки
+     * @param inventoryOwnerEntity Сущность, к которой привязан инвентарь
+     * @param host Инвентарь, хранящий вкладки, которые и занимаются переключением контента
+     *
      */
-    public TabInventory(String inventoryName, int tabSlotsCount, Entity inventoryOwnerEntity) {
+    public TabInventory(String inventoryName, int tabSlotsCount, Entity inventoryOwnerEntity, TabHostInventory host) {
         this.inventoryName = inventoryName;
         this.tabSlotsCount = tabSlotsCount;
         this.inventoryOwnerEntity = inventoryOwnerEntity;
+
+        this.host = host;
+        this.host.setTabInv(this);
     }
 
     @Override
@@ -89,6 +96,12 @@ public class TabInventory implements IInventory {
         return null; // Отключаем выбрасывание при закрытии GUI
     }
 
+    /**
+     * Устанавливает содержимое для текущей вкладки
+     * @param slotIndex номер слота
+     * @param itemStack предмет, который нужно поместить в инвентарь
+     * @see #currentTabKey
+     */
     @Override
     public void setInventorySlotContents(int slotIndex, ItemStack itemStack) {
         // Проверка на превышения лимита размера стака
@@ -108,6 +121,13 @@ public class TabInventory implements IInventory {
 
         //  Уведомляем об изменении инвентаря
         this.markDirty();
+    }
+
+    public void setInventorySlotContents(int slotIndex, ItemStack itemStack, String tabName) { // TODO: Рефакторить это и аналог из IInventory
+        String saveTabame = currentTabKey;
+        currentTabKey = tabName; // TODO: ЭТО ВООБЩЕ НОРМАЛЬНО? Вот так переключать вкладки?
+        setInventorySlotContents(slotIndex, itemStack);
+        currentTabKey = saveTabame;
     }
 
     @Override
@@ -251,16 +271,7 @@ public class TabInventory implements IInventory {
      * @param tabName Название новой вкладки
      */
     public void addTab(String tabName) {
-
-        // debug
-        Tab t = new Tab();
-        if (items.get(tabName) == null) {
-            for (int i = 0; i < t.stacks.length; i++) {
-                ItemStack ii = new ItemStack(getRandomItem(), 1);
-                t.stacks[i] = ii;
-            }
-        }
-
+        Tab t = new Tab(tabName);
         items.put(tabName, t);
         if (currentTabKey == null) {
             currentTabKey = tabName;
@@ -269,6 +280,10 @@ public class TabInventory implements IInventory {
 
     public boolean hasTab(String tabName) {
         return items.get(tabName) != null;
+    }
+
+    public Tab getTab(String tabName) {
+        return items.get(tabName);
     }
 
     // debug
@@ -291,12 +306,11 @@ public class TabInventory implements IInventory {
      * @param stackLimit Лимит предметов в стаках вкладки
      */
     public void addTab(String tabName, int stackLimit) {
-        items.put(tabName, new Tab(stackLimit));
+        items.put(tabName, new Tab(tabName, stackLimit));
     }
 
     private void addTab(String tabName, ItemStack[] content) {
-        Tab t = new Tab();
-        t.stacks = content;
+        Tab t = new Tab(tabName, content);
         items.put(tabName, t);
     }
 
@@ -313,6 +327,9 @@ public class TabInventory implements IInventory {
         }
     }
 
+    public String getCurrentTab() {
+        return currentTabKey;
+    }
 
 
 
@@ -322,31 +339,58 @@ public class TabInventory implements IInventory {
 
 
 
-
-    // TODO
-    private class Tab {
-        ItemStack[] stacks;
-        final int stackLimit;
+    // TODO: Javadoc, хотя вроде и так все понятно
+    public class Tab {
+        public String name;
+        public ItemStack[] stacks;
+        public final int stackLimit;
 
         /**
          * Конструктор для создания дефолтной вкладки
          */
-        public Tab() {
-            this.stacks = new ItemStack[tabSlotsCount];
-            this.stackLimit = 64;
+        public Tab(String name) {
+            this(name, null,64);
+        }
+
+        public Tab(String tabName, int stackLimit) {
+            this(tabName, null, stackLimit);
+        }
+
+        public Tab(String name, ItemStack[] content) {
+            this(name, content,64);
         }
 
         /**
          * Конструктор, для создания вкладки с заданным лимитом для стаков
          * @param stackLimit
          */
-        public Tab(int stackLimit) {
-            this.stacks = new ItemStack[tabSlotsCount];
+        public Tab(String name, ItemStack[] content, int stackLimit) {
+            this.name = name;
             this.stackLimit = stackLimit;
+
+            if (content == null) {
+                this.stacks = new ItemStack[tabSlotsCount]; // Если content - null, то создаем массив с пустым заполнением
+            } else {
+                /* Я решил не делать умное разрешение неточности во избежания ошибок.
+                 * Думаю, что ситуации когда добавляется вкладка, не соответствующая по размерам
+                 * полю TabInventory#tabSlotsCount - невозможна. */
+                if (content.length != TabInventory.this.tabSlotsCount)
+                    throw new RuntimeException("Размер массива content(сейчас " + content.length + ") должен совпадать с TabInventory#tabSlotsCount(сейчас " + TabInventory.this.tabSlotsCount + ")");
+                else
+                    this.stacks = content;
+            }
         }
 
         public boolean isItemValidForSlotInTab(int slotIndex, ItemStack itemStack) {
             return true; // TODO
+        }
+
+        public void setSlotContent(int slotIndex, ItemStack itemStack) {
+            stacks[slotIndex] = itemStack;
+        }
+
+        public String getInventoryName() {
+            return TabInventory.this.inventoryName;
         }
     }
 }

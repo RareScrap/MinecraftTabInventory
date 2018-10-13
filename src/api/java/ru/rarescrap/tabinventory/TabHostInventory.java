@@ -1,17 +1,13 @@
 package ru.rarescrap.tabinventory;
 
-import cpw.mods.fml.common.network.ByteBufUtils;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
-import ru.rarescrap.tabinventory.network.TabMessageHandler;
+
+import java.util.Map;
 
 /**
  * Инвентарь, хранящий вкладки. Каждый предмет в инвентаре является ключом, по корому устанавливается содержимое
@@ -19,25 +15,20 @@ import ru.rarescrap.tabinventory.network.TabMessageHandler;
  */
 public class TabHostInventory extends InventoryBasic {
     private static final String NBT_TAG = "player_data_tabs"; // TODO: Отказаться в пользу inventoryName
-    private static boolean isHandlerRegistered = false;
 
     /** Имя последней выбранной вкладки */
-    private String currentTab;
-    /** Инвентарь, которые устанавливает свое наполнение в зависимости от {@link #currentTab}*/
+    private String currentTab; // TODO: Я не знаю, нужно ли мне это поле, ведь я могу брать его из tabInventory. Но если он null?
+    /** Инвентарь, которые устанавливает свое наполнение в зависимости от {@link #currentTab} */
     private TabInventory tabInventory;
-    /** Объект для обмена сообщениями между клиентом и сервером */
-    private static SimpleNetworkWrapper networkWrapper;
 
     /**
      * Конструктор
      * @param inventoryName Имя инвентаря-хоста вкладок
      * @param inventorySize Размер инвентаря-хоста
-     * @param tabInventory Связанный инвентарь для отображения содержимого выбранной вкладки
      */
-    public TabHostInventory(String inventoryName, int inventorySize, TabInventory tabInventory) {
-        super(NBT_TAG, false, inventorySize);
-        this.tabInventory = tabInventory;
-        this.func_110133_a(inventoryName); // Устанавливаем имя инвентаря
+    public TabHostInventory(String inventoryName, int inventorySize) {
+        super(NBT_TAG, false, inventorySize); // TODO: Выходит что строка ниже сводит половину из настройки консткруктора на нет - надо это исправить
+        this.func_110133_a(inventoryName); // Устанавливаем имя инвентаря // TODO: Это нормально? Может быть это поле предназначено для локализованных имен?
     }
 
     @Override
@@ -47,7 +38,7 @@ public class TabHostInventory extends InventoryBasic {
 
     @Override
     public void setInventorySlotContents(int slotIndex, ItemStack itemStack) {
-        if (itemStack != null && !tabInventory.hasTab(itemStack.getUnlocalizedName()))
+        if (tabInventory != null && itemStack != null && !tabInventory.hasTab(itemStack.getUnlocalizedName()))
             tabInventory.addTab(itemStack.getUnlocalizedName());
 
         super.setInventorySlotContents(slotIndex, itemStack);
@@ -127,94 +118,33 @@ public class TabHostInventory extends InventoryBasic {
         }
     }
 
-    // Тут нет setTabInventory(), т.к. связанный инвентарь не должен меняться
-
     /**
-     * Регистрирует обработчик для сообщений, поступающих из {@link TabHostInventory}.
-     *
-     * <p>
-     * <strong>ВНИМАНИЕ!</strong>
-     * Вы обязаны вызвать этот метод для preInit-фазы вашего мода. Иначе TabHostInventory и {@link TabInventory} не
-     * смогут работать сообщая. Имейте ввиду, что для ВСЕХ TabHostInventory вашего мода регистрируется ЛИШЬ ОДИН
-     * обработчик. Таким образом в должны позаботиться, чтобы связать нужный TabHostInventory с нужным {@link TabInventory}.
-     * </p>
-     *
-     * @param handler Обработчик
-     * @param discriminator Дискриминатор ID (ДОЛЖЕН БЫТЬ УНИКАЛЕН ДЛЯ ВСЕХ ОСТАЛЬНЫХ ПАКЕТОВ ВАШЕГО МОДА)
-     * @see "https://mcforge.readthedocs.io/en/latest/networking/simpleimpl/#registering-packets"
-     */
-    public static void registerHandler(SimpleNetworkWrapper networkWrapper, Class<? extends TabMessageHandler> handler, int discriminator) {
-        if (isHandlerRegistered) {
-            throw new RuntimeException("Handler is already registered!");
-        } else {
-            TabHostInventory.networkWrapper = networkWrapper;
-            networkWrapper.registerMessage(handler, SetCurrentTabPacket.class, discriminator, Side.SERVER);
-            isHandlerRegistered = true;
-        }
-    }
-
-    /**
-     * Устанавливает текущую вкладку, отсылая сообщение обработчику, где в самостоятельно должн обработать сообщение.
+     * Устанавливает текущую вкладку
      * @param tabName Имя вкладки
      */
     public void setTab(String tabName) {
-        if (isHandlerRegistered) {
-            if (!tabName.equals(currentTab)) { // Не отсылаем вообщение, если пытаемся установать вкладку, которая уже установлена
-                TabHostInventory.networkWrapper.sendToServer(
-                        new SetCurrentTabPacket(
-                                this.getInventoryName(),
-                                tabInventory.getInventoryName(),
-                                tabName)
-                );
-                currentTab = tabName;
-            }
+        if (tabInventory.items.get(tabName) != null) {
+            tabInventory.setCurrentTab(tabName);
+            currentTab = tabName;
         } else {
-            throw new RuntimeException("Handler is not registered.");
+            System.err.println("Инвентарь TabInventory::" + getInventoryName() + " не иммет вкладки с названием " + tabName);
         }
     }
 
     /**
-     * Сообщение, отсылаемое обработчику при вызове {@link #setTab(String)}.
+     * Связывает {@link TabInventory} с хостом вкладок
+     * @param tabInventory вкладочный инвентарь, который будет связан с этим хостом
      */
-    public static class SetCurrentTabPacket implements IMessage {
-        /** Имя инвентарая-хоста вкладок, который отсылает сообщение */
-        public String callerInventoryName;
-        /** Имя инвентаря {@link TabInventory}, который должен получить сообщение */
-        public String targetInventoryName;
-        /** Имя вкладки, которую должен выставить {@link TabInventory} с именем {@link #targetInventoryName} */
-        public String newCurrentTabName;
+    public void setTabInv(TabInventory tabInventory) {
+        this.tabInventory = tabInventory;
 
-        /**
-         * Необходимый конструктор по умолчанию. Он необходим для того, чтобы на
-         * стороне-обработчике создать объект и распаковать в него буффер.
-         */
-        public SetCurrentTabPacket() {
-        }
-
-        /**
-         * Конструктор
-         * @param callerInventoryName {@link #callerInventoryName}
-         * @param targetInventoryName {@link #targetInventoryName}
-         * @param newCurrentTabName {@link #newCurrentTabName}
-         */
-        public SetCurrentTabPacket(String callerInventoryName, String targetInventoryName, String newCurrentTabName) {
-            this.callerInventoryName = callerInventoryName;
-            this.targetInventoryName = targetInventoryName;
-            this.newCurrentTabName = newCurrentTabName;
-        }
-
-        @Override
-        public void fromBytes(ByteBuf buf) {
-            callerInventoryName = ByteBufUtils.readUTF8String(buf);
-            targetInventoryName = ByteBufUtils.readUTF8String(buf);
-            newCurrentTabName = ByteBufUtils.readUTF8String(buf);
-        }
-
-        @Override
-        public void toBytes(ByteBuf buf) {
-            ByteBufUtils.writeUTF8String(buf, callerInventoryName);
-            ByteBufUtils.writeUTF8String(buf, targetInventoryName);
-            ByteBufUtils.writeUTF8String(buf, newCurrentTabName);
+        /* Проверяем, имеются ли в tabInventory вкладка для каждого итема из хоста
+         * Это гарантирует, что tabInventory всегда будет иметь вкладку для каждого итема хоста
+         * даже если tabInventory был связан с хостом не сразу. */
+        for (Map.Entry<String, TabInventory.Tab> entry : this.tabInventory.items.entrySet()) {
+            String tabName = entry.getKey();
+            if (!this.tabInventory.hasTab(tabName)) // Если не имеется...
+                this.tabInventory.addTab(tabName); // То добавляем новую пустую вкладку
         }
     }
 }
