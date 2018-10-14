@@ -5,7 +5,8 @@
 
 ## Скриншоты
 
-TODO
+![Alt Text](https://github.com/RareScrap/MinecraftTabInventory/blob/master/github_media/screenshot2.gif)
+![Alt Text](https://github.com/RareScrap/MinecraftTabInventory/blob/master/github_media/screenshot1.gif)
 
 ## Быстрый старт
 
