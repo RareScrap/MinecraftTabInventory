@@ -1,11 +1,14 @@
 # MinecraftTabInventory 1.7.10
 
+[ ![Download](https://api.bintray.com/packages/rarescrap/minecraft/minecraft-tab-inventory/images/download.svg) ](https://bintray.com/rarescrap/minecraft/minecraft-tab-inventory/_latestVersion)
+
 Библиотека для Minecraft 1.7.10, позволяющая вам создавать инвентари с переключаемым содержимым.
 
 
 ## Скриншоты
 
-TODO
+![Alt Text](https://github.com/RareScrap/MinecraftTabInventory/blob/master/github_media/screenshot2.gif)
+![Alt Text](https://github.com/RareScrap/MinecraftTabInventory/blob/master/github_media/screenshot1.gif)
 
 ## Быстрый старт
 
