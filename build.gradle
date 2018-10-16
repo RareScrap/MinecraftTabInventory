@@ -19,7 +19,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.3.0"
+version = "0.3.1"
 group= "ru.rarescrap.tabinventory" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "minecraft-tab-inventory-lib"
 def publicationVersion = version+'_1.7.10'
@@ -70,12 +70,6 @@ task apiJar(type: Jar) {
     //classifier = 'api' // Нам не нужно классифицировать его, т.к. в данном случае apiJar является артефактом по умолчанию
 }
 
-// TODO: Разобраться как генерить source и javadoc jar'ники. И зачем они вообще нужны?
-//task sourcesJar(type: Jar, dependsOn: classes) {
-//    classifier = 'sources'
-//    from sourceSets.main.allSource
-//}
-
 javadoc {
     options.encoding = 'UTF-8' // Поддержка руских букв в доках
 }
@@ -83,6 +77,11 @@ javadoc {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.api.allSource
 }
 
 // Подготавливает maven-публикацию, которая будет использоваться в bintray
@@ -96,7 +95,7 @@ publishing {
             artifactId archivesBaseName
             version publicationVersion
             artifact apiJar
-            //artifact sourcesJar
+            artifact sourcesJar
             artifact javadocJar
         }
     }

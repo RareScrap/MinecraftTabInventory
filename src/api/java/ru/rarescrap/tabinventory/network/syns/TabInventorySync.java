@@ -171,7 +171,12 @@ public class TabInventorySync<T extends Container & SupportTabs.Container> {
             TabInventory serverInv = temp.get(change.inventoryName);
             TabInventory suitableClientInv = this.syncState.get(serverInv);
             TabInventory.Tab suitableTab = suitableClientInv.getTab(change.tabName);
-            suitableTab.setSlotContent(change.slotIndex, change.actualItemStack);
+            if (change.actualItemStack == null) {
+                suitableTab.setSlotContent(change.slotIndex, null);
+            } else {
+                // Копируем стак, чтобы клиентский и серверный инвнтари не ссылались на один и тот же объект
+                suitableTab.setSlotContent(change.slotIndex, change.actualItemStack.copy());
+            }
         }
     }
 
