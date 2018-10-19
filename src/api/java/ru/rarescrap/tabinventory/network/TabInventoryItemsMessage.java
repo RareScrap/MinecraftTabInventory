@@ -7,8 +7,11 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S30PacketWindowItems;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import ru.rarescrap.tabinventory.SupportTabs;
 import ru.rarescrap.tabinventory.TabInventory;
 
@@ -91,6 +94,15 @@ public class TabInventoryItemsMessage implements IMessage {
 
                 TabInventory tabInventory = tabContainer.getTabInventory(message.inventoryName);
                 if (tabInventory != null) {
+
+                    // Отсылаем ивент о хандле сообщения
+                    MinecraftForge.EVENT_BUS.post(new Event(
+                            player,
+                            tabInventory.getInventoryName(),
+                            tabInventory.items,
+                            message.items));
+
+                    // Копируем итемы с сервера в клиентский контейнер
                     for (Map.Entry<String, ItemStack[]> entry : message.items.entrySet()) {
                         tabInventory.getTab(entry.getKey()).stacks = message.items.get(entry.getKey());
                     }
@@ -100,6 +112,23 @@ public class TabInventoryItemsMessage implements IMessage {
             }
 
             return null;
+        }
+    }
+
+    /**
+     * Клиентский евент, срабатывающий, когда на клиент приходит {@link TabInventoryItemsMessage}
+     * @see MessageHandler#onMessage(TabInventoryItemsMessage, MessageContext)
+     */
+    public static class Event extends PlayerEvent {
+        public Map<String, TabInventory.Tab> oldTabs;
+        public Map<String, ItemStack[]> newItems;
+        public String inventoryName;
+
+        public Event(EntityPlayer player, String inventoryName, Map<String, TabInventory.Tab> oldTabs, Map<String, ItemStack[]> newItems) {
+            super(player);
+            this.inventoryName = inventoryName;
+            this.oldTabs = oldTabs;
+            this.newItems = newItems;
         }
     }
 }

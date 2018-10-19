@@ -6,6 +6,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.common.MinecraftForge;
 
 @Mod(modid = TabInventoryExample.MODID, version = TabInventoryExample.VERSION)
 public class TabInventoryExample
@@ -17,12 +18,15 @@ public class TabInventoryExample
     @Mod.Instance
     public static TabInventoryExample instance;
 
+    public static ru.rarescrap.example.EventHandler eventHandler = new ru.rarescrap.example.EventHandler();
+
     @SidedProxy(clientSide = "ru.rarescrap.example.ClientProxy", serverSide = "ru.rarescrap.example.CommonProxy")
     public static CommonProxy proxy;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         proxy.preInit(event);
+        MinecraftForge.EVENT_BUS.register(eventHandler);
     }
 
     @EventHandler
