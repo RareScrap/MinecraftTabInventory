@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7]
+### Added
+- Новые утильные методы findIn(...) для поиска внутри TabInventory:
+
 ## [0.3.6]
 ### Fixed
 - Фикс бага: клиентские классы пытались загружаться на сервере при регистрации сообщений
