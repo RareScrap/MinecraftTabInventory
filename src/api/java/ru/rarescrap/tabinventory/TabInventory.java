@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import ru.rarescrap.tabinventory.events.StackAddToTabEvent;
+import ru.rarescrap.tabinventory.network.syns.Change;
 import ru.rarescrap.tabinventory.utils.Utils;
 
 import java.util.HashMap;
@@ -114,7 +115,9 @@ public class TabInventory implements IInventory {
         if (previousStack != null) {
             previousStack = items.get(currentTabKey).stacks[slotIndex].copy();
         }
-        MinecraftForge.EVENT_BUS.post(new StackAddToTabEvent(inventoryOwnerEntity, previousStack, itemStack, slotIndex)); // TODO: Юзать ли эвенты или использовать интерфейс IInvBasic? В других реализациях инвентаря (InventoryBasic, например) объекты этого интерфейса используются чтобы информировать об изменении инвентаря
+        Change change = new Change(inventoryName, currentTabKey, slotIndex, previousStack, itemStack);
+        MinecraftForge.EVENT_BUS.post(new StackAddToTabEvent((EntityPlayer) inventoryOwnerEntity, change)); // TODO: Юзать ли эвенты или использовать интерфейс IInvBasic? В других реализациях инвентаря (InventoryBasic, например) объекты этого интерфейса используются чтобы информировать об изменении инвентаря
+        // TODO: Выше костыль с кастом
 
         // Добавляем стак в хранилище
         items.get(currentTabKey).stacks[slotIndex] = itemStack;
@@ -174,12 +177,12 @@ public class TabInventory implements IInventory {
 
     @Override
     public void openInventory() {
-
+        // TODO: Вызывать это из контейнера, как это делает игра с ванильным контейнерами
     }
 
     @Override
     public void closeInventory() {
-
+        // TODO: Вызывать это из контейнера, как это делает игра с ванильным контейнерами
     }
 
     @Override

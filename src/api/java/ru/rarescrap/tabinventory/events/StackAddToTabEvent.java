@@ -1,27 +1,14 @@
 package ru.rarescrap.tabinventory.events;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import ru.rarescrap.tabinventory.network.syns.Change;
 
-public class StackAddToTabEvent extends EntityEvent {
-    public ItemStack previouStack;
-    public ItemStack currentStack;
-    public int slotIndex;
+public class StackAddToTabEvent extends PlayerEvent { // TODO: Название бы поменять
+    public Change change;
 
-    public StackAddToTabEvent(Entity entity, ItemStack previous, ItemStack current, int slotIndex) {
-        super(entity);
-        previouStack = previous;
-        currentStack = current;
-        this.slotIndex = slotIndex;
-    }
-
-    public boolean isLivingEntity() {
-        return entity instanceof EntityLivingBase;
-    }
-
-    public EntityLivingBase getLivingEntity() {
-        return isLivingEntity() ? ((EntityLivingBase) entity) : null;
+    public StackAddToTabEvent(EntityPlayer player, Change change) {
+        super(player);
+        this.change = change;
     }
 }
