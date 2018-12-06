@@ -174,12 +174,12 @@ public class TabInventory implements IInventory {
 
     @Override
     public void openInventory() {
-
+        // TODO: Вызывать это из контейнера, как это делает игра с ванильным контейнерами
     }
 
     @Override
     public void closeInventory() {
-
+        // TODO: Вызывать это из контейнера, как это делает игра с ванильным контейнерами
     }
 
     @Override
