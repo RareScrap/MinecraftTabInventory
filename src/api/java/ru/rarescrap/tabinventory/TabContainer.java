@@ -2,6 +2,8 @@ package ru.rarescrap.tabinventory;
 
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import ru.rarescrap.tabinventory.network.NetworkUtils;
 import ru.rarescrap.tabinventory.network.syns.TabInventorySync;
 import ru.rarescrap.tabinventory.utils.Utils;
@@ -71,5 +73,22 @@ public abstract class TabContainer extends Container
     @Override
     public TabInventorySync getSync() {
         return sync;
+    }
+
+    /**
+     * Располагает стаки по слотам в порядке их добавления при помощи вызова
+     * {@link #addSlotToContainer(Slot)}. Алогичен реализации из супер-класса, за исключением
+     * того, что не оказывает воздействия на слоты, подсоединенные к {@link TabInventory}.
+     * Для помещения стаков в TabInventory см. {@link TabInventory#setInventorySlotContents(int, ItemStack, String)}.
+     *
+     * @see <a href="https://github.com/RareScrap/MinecraftTabInventory/issues/12">Зачем так сделано</a>
+     */
+    @Override
+    public void putStacksInSlots(ItemStack[] p_75131_1_) {
+        for (int i = 0; i < p_75131_1_.length; ++i) {
+            Slot slot = this.getSlot(i);
+            if ( !(slot.inventory instanceof TabInventory) )
+                this.getSlot(i).putStack(p_75131_1_[i]);
+        }
     }
 }
