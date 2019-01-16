@@ -23,8 +23,8 @@ import ru.rarescrap.tabinventory.network.syns.Change;
  * Является аналогом {@link S2FPacketSetSlot}, но для инвентарей типа {@link TabInventory}.
  */
 public class SetTabSlotMessage implements IMessage {
-    private int windowId;
-    private Change change;
+    public int windowId;
+    public Change change;
 
     // for reflection newInstance
     public SetTabSlotMessage() {}

@@ -1,7 +1,7 @@
 [
 {
-  "modid": "tabinventory",
-  "name": "TabInventoryLib",
+  "modid": "tabinventoryexample",
+  "name": "TabInventoryLib example",
   "description": "TODO",
   "version": "${version}",
   "mcversion": "${mcversion}",

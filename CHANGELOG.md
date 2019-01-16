@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.9]
+### Added
+- Стало возможно задавать свои хандлеры обработки SetTabSlotMessage и TabInventoryItemsMessage
+### Fixed
+- Игра теперь распознает mcmod.info example-мода
+
 ## [0.3.8]
 ### Fixed
 - Фикс бага [#12](https://github.com/RareScrap/MinecraftTabInventory/issues/12)
