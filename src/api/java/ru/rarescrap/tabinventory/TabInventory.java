@@ -47,9 +47,7 @@ public class TabInventory implements IInventory {
         this.inventoryName = inventoryName;
         this.tabSlotsCount = tabSlotsCount;
         this.inventoryOwnerEntity = inventoryOwnerEntity;
-
         this.host = host;
-        this.host.setTabInv(this);
     }
 
     @Override
@@ -334,6 +332,15 @@ public class TabInventory implements IInventory {
         return currentTabKey;
     }
 
+    /**
+     * Создает двунаправленное соединение межуду хостом вкладок и вкладочным инвентарем.
+     * Т.е. хост, определеный при создании вызывающего объекта, будет указывать на этот
+     * объект как на свой инвентарь.
+     */
+    public TabInventory connect() {
+        host.setTabInv(this);
+        return this;
+    }
 
 
 

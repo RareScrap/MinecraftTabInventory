@@ -19,7 +19,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.3.9"
+version = "0.3.10"
 group= "ru.rarescrap.tabinventory" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "minecraft-tab-inventory-lib"
 def publicationVersion = version+'_1.7.10'

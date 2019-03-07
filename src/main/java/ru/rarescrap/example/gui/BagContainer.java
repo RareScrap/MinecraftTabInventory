@@ -22,7 +22,7 @@ public class BagContainer extends TabContainer {
 
         // Инициализируем хост и вкладочный инвентарь к этому хосту
         tabHostInventory = new TabHostInventory("tabs", 4);
-        tabInventory = new TabInventory("tab_inv", 36, player, tabHostInventory);
+        tabInventory = new TabInventory("tab_inv", 36, player, tabHostInventory).connect();
 
         // Добавляем инвентарь со вкладками к синхронизации
         tabInventories.put(tabInventory.getInventoryName(), tabInventory);

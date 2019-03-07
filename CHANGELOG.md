@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.10]
+### Added
+- Добавлен метод TabInventory#connect(), позволяющий связать между собой сам TabInventory и TabInventoryHost
+### Changed
+- TabInventory теперь не назначает себя в качестве инвентаря для своего хоста сразу при инициализации. Теперь это должны делать вы при помощи TabInventory#connect().
+
 ## [0.3.9]
 ### Added
 - Стало возможно задавать свои хандлеры обработки SetTabSlotMessage и TabInventoryItemsMessage
