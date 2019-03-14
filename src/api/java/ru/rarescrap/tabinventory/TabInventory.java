@@ -114,11 +114,12 @@ public class TabInventory implements IInventory {
             previousStack = items.get(currentTabKey).stacks[slotIndex].copy();
         }
         Change change = new Change(inventoryName, currentTabKey, slotIndex, previousStack, itemStack);
-        MinecraftForge.EVENT_BUS.post(new StackAddToTabEvent((EntityPlayer) inventoryOwnerEntity, change)); // TODO: Юзать ли эвенты или использовать интерфейс IInvBasic? В других реализациях инвентаря (InventoryBasic, например) объекты этого интерфейса используются чтобы информировать об изменении инвентаря
+        MinecraftForge.EVENT_BUS.post(new StackAddToTabEvent.Pre((EntityPlayer) inventoryOwnerEntity, change)); // TODO: Юзать ли эвенты или использовать интерфейс IInvBasic? В других реализациях инвентаря (InventoryBasic, например) объекты этого интерфейса используются чтобы информировать об изменении инвентаря
         // TODO: Выше костыль с кастом
 
         // Добавляем стак в хранилище
         items.get(currentTabKey).stacks[slotIndex] = itemStack;
+        MinecraftForge.EVENT_BUS.post(new StackAddToTabEvent.Post((EntityPlayer) inventoryOwnerEntity, change));
 
         //  Уведомляем об изменении инвентаря
         this.markDirty();

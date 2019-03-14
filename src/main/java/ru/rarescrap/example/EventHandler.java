@@ -11,7 +11,7 @@ import ru.rarescrap.tabinventory.network.TabInventoryItemsMessage;
 public class EventHandler {
 
     @SubscribeEvent
-    public void onStackAddToTab(StackAddToTabEvent e) {
+    public void onStackAddToTab(StackAddToTabEvent.Pre e) {
         // Евент хандлится на клиенте и на сервере, но в логах будет виден только ClientThread.
         // Это из-за того, что ChatComponentText показывается только на клиенте!
         Side side = e.entityPlayer.worldObj.isRemote ? Side.CLIENT : Side.SERVER;
