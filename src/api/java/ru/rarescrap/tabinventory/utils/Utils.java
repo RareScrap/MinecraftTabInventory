@@ -32,39 +32,6 @@ public class Utils {
     }
 
     /**
-     * Находит и возвращает первый попавшийся стак с указанным итемом.
-     * Поиск производится по всем вкладкам.
-     * @param tabInventory Инвентарь, в котором проводится поиск
-     * @param item Предмет, стак с которым нужно найти
-     * @return Подходящий стак. Если ничего не найдено - null
-     */
-    public static ItemStack findIn(TabInventory tabInventory, Item item) {
-        for (TabInventory.Tab tab : tabInventory.items.values()) {
-            ItemStack result = findIn(tabInventory, item, tab.name);
-            if (result != null) return result;
-        }
-        return null;
-    }
-
-    /**
-     * Находит и возвращает первый попавшийся стак с указанным итемом
-     * @param tabInventory Инвентарь, в котором проводится поиск
-     * @param item Предмет, стак с которым нужно найти
-     * @param tabName Имя вкладки, в которой производится поиск
-     * @return Подходящий стак. Если ничего не найдено - null
-     */
-    public static ItemStack findIn(TabInventory tabInventory, Item item, String tabName) {
-        TabInventory.Tab tab = tabInventory.items.get(tabName);
-        if (tab == null) return null;
-
-        for (ItemStack stack : tab.stacks) {
-            if (stack == null) continue;
-            if (stack.getItem() == item) return stack;
-        }
-        return null;
-    }
-
-    /**
      * Идентичныцй {@link Container#getInventory()} метод. За исключение того, что не включает в вывод
      * стаки из {@link TabInventory}. Вместо них включается null.
      */
