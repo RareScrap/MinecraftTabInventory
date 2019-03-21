@@ -1,6 +1,5 @@
 package ru.rarescrap.tabinventory.utils;
 
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
@@ -33,37 +32,34 @@ public class Utils {
     }
 
     /**
-     * Находит и возвращает первый попавшийся стак с указанным именем.
+     * Находит и возвращает первый попавшийся стак с указанным итемом.
      * Поиск производится по всем вкладкам.
      * @param tabInventory Инвентарь, в котором проводится поиск
-     * @param itemName Уникальное имя итема, стак которого нужно найти
+     * @param item Предмет, стак с которым нужно найти
      * @return Подходящий стак. Если ничего не найдено - null
      */
-    public static ItemStack findIn(TabInventory tabInventory, String itemName) {
+    public static ItemStack findIn(TabInventory tabInventory, Item item) {
         for (TabInventory.Tab tab : tabInventory.items.values()) {
-            ItemStack result = findIn(tabInventory, itemName, tab.name);
+            ItemStack result = findIn(tabInventory, item, tab.name);
             if (result != null) return result;
         }
         return null;
     }
 
     /**
-     * Находит и возвращает первый попавшийся стак с указанным именем
+     * Находит и возвращает первый попавшийся стак с указанным итемом
      * @param tabInventory Инвентарь, в котором проводится поиск
-     * @param itemName Уникальное имя итема, стак которого нужно найти
+     * @param item Предмет, стак с которым нужно найти
      * @param tabName Имя вкладки, в которой производится поиск
      * @return Подходящий стак. Если ничего не найдено - null
      */
-    public static ItemStack findIn(TabInventory tabInventory, String itemName, String tabName) {
+    public static ItemStack findIn(TabInventory tabInventory, Item item, String tabName) {
         TabInventory.Tab tab = tabInventory.items.get(tabName);
         if (tab == null) return null;
 
         for (ItemStack stack : tab.stacks) {
             if (stack == null) continue;
-
-            String name = GameRegistry.findUniqueIdentifierFor(stack.getItem()).name;
-            if (name.equals(itemName))
-                return stack;
+            if (stack.getItem() == item) return stack;
         }
         return null;
     }
