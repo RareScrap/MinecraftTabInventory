@@ -28,7 +28,7 @@ public class TabInventory implements IInventory {
     /** Имя текущей откртой вкладки */
     private String currentTabKey; // TODO: А что с TabHostInvetory#currentTab? Зачем два поля под текущую вкладку? Нужно с этим разобраться.
     /** Хранилище вкладок с предметами */
-    public HashMap<String, Tab> items = new HashMap<String, Tab>();
+    public HashMap<String, Tab> items = new HashMap<String, Tab>(); // TODO: Tab должен быть расширяемым классом. Должна быть возможность указать его наследника -> нужен метод getTab()
     /** Сущность, к которой привязан инвентарь */
     private Entity inventoryOwnerEntity; // TODO: Добавить такое же поле к TabHostInventory?
     /** Хост для данного инвентаря */ // TODO: Зачем?
@@ -351,10 +351,10 @@ public class TabInventory implements IInventory {
 
 
     // TODO: Javadoc, хотя вроде и так все понятно
-    public class Tab {
+    public class Tab implements IInventory{
         public String name;
-        public ItemStack[] stacks;
-        public final int stackLimit;
+        private ItemStack[] stacks;
+        private final int stackLimit;
 
         /**
          * Конструктор для создания дефолтной вкладки
@@ -392,16 +392,96 @@ public class TabInventory implements IInventory {
             }
         }
 
-        public boolean isItemValidForSlotInTab(int slotIndex, ItemStack itemStack) {
-            return true; // TODO
+        @Override
+        public int getSizeInventory() {
+            return tabSlotsCount;
         }
 
-        public void setSlotContent(int slotIndex, ItemStack itemStack) {
-            stacks[slotIndex] = itemStack;
+        @Override
+        public ItemStack getStackInSlot(int p_70301_1_) {
+            return stacks[p_70301_1_];
         }
 
+        @Override
+        public ItemStack decrStackSize(int p_70298_1_, int p_70298_2_) {
+            if (this.stacks[p_70298_1_] != null) // ПИЗДАНУЛ ИЗ InvBasic!
+            {
+                ItemStack itemstack;
+
+                if (this.stacks[p_70298_1_].stackSize <= p_70298_2_)
+                {
+                    itemstack = this.stacks[p_70298_1_];
+                    this.stacks[p_70298_1_] = null;
+                    this.markDirty();
+                    return itemstack;
+                }
+                else
+                {
+                    itemstack = this.stacks[p_70298_1_].splitStack(p_70298_2_);
+
+                    if (this.stacks[p_70298_1_].stackSize == 0)
+                    {
+                        this.stacks[p_70298_1_] = null;
+                    }
+
+                    this.markDirty();
+                    return itemstack;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        @Override
+        public ItemStack getStackInSlotOnClosing(int p_70304_1_) {
+            return null;
+        }
+
+        @Override
+        public void setInventorySlotContents(int p_70299_1_, ItemStack p_70299_2_) {
+            stacks[p_70299_1_] = p_70299_2_; // TODO: Высылаь эвент?
+        }
+
+        @Override
         public String getInventoryName() {
             return TabInventory.this.inventoryName;
+        }
+
+        @Override
+        public boolean hasCustomInventoryName() {
+            return true;
+        }
+
+        @Override
+        public int getInventoryStackLimit() {
+            return stackLimit;
+        }
+
+        @Override
+        public void markDirty() {
+            //TODO: WTF?
+        }
+
+        @Override
+        public boolean isUseableByPlayer(EntityPlayer p_70300_1_) {
+            return true;
+        }
+
+        @Override
+        public void openInventory() {
+            // TODO: Вызывать это дело когда вкладка переключается на эту вкладку или кода просто открывается их TabInventory?
+        }
+
+        @Override
+        public void closeInventory() {
+            // TODO: Вызывать это дело когда вкладка переключается на эту вкладку или кода просто открывается их TabInventory?
+        }
+
+        @Override
+        public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_) {
+            return true; // TODO
         }
     }
 

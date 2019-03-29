@@ -52,21 +52,24 @@ public class BagContainer extends TabContainer {
 
             // debug
             // Базовое заполнение инвентаря для наглядности
-            ItemStack[] stacks = tabInventory.getTab(Items.record_11.getUnlocalizedName()).stacks;
-            for (int i = 0; i < stacks.length; i++) {
-                stacks[i] = new ItemStack(Items.iron_ingot, 1);
+            TabInventory.Tab tab = tabInventory.getTab(Items.record_11.getUnlocalizedName());
+            for (int i = 0; i < tab.getSizeInventory(); i++) {
+                tab.setInventorySlotContents(i, new ItemStack(Items.iron_ingot, 1));
             }
-            stacks = tabInventory.getTab(Items.wooden_pickaxe.getUnlocalizedName()).stacks;
-            for (int i = 0; i < stacks.length; i++) {
-                stacks[i] = new ItemStack(Items.gold_ingot, 1);
+
+            tab = tabInventory.getTab(Items.wooden_pickaxe.getUnlocalizedName());
+            for (int i = 0; i < tab.getSizeInventory(); i++) {
+                tab.setInventorySlotContents(i, new ItemStack(Items.gold_ingot, 1));
             }
-            stacks = tabInventory.getTab(Items.beef.getUnlocalizedName()).stacks;
-            for (int i = 0; i < stacks.length; i++) {
-                stacks[i] = new ItemStack(Items.carrot, 1);
+
+            tab = tabInventory.getTab(Items.beef.getUnlocalizedName());
+            for (int i = 0; i < tab.getSizeInventory(); i++) {
+                tab.setInventorySlotContents(i, new ItemStack(Items.carrot, 1));
             }
-            stacks = tabInventory.getTab(Items.boat.getUnlocalizedName()).stacks;
-            for (int i = 0; i < stacks.length; i++) {
-                stacks[i] = new ItemStack(Items.diamond_hoe, 1);
+
+            tab = tabInventory.getTab(Items.boat.getUnlocalizedName());
+            for (int i = 0; i < tab.getSizeInventory(); i++) {
+                tab.setInventorySlotContents(i, new ItemStack(Items.diamond_hoe, 1));
             }
         }
     }

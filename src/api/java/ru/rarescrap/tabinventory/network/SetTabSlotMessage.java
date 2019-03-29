@@ -75,7 +75,7 @@ public class SetTabSlotMessage implements IMessage {
 
                 // Устанавливает серверный стак в слот на клиентском контейнере
                 TabInventory tabInventory = container.getTabInventory(change.inventoryName);
-                tabInventory.getTab(change.tabName).setSlotContent(change.slotIndex, change.actualItemStack);
+                tabInventory.getTab(change.tabName).setInventorySlotContents(change.slotIndex, change.actualItemStack);
             }
 
             return null;

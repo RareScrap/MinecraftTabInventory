@@ -42,7 +42,11 @@ public class TabInventoryItemsMessage implements IMessage {
         inventoryName = tabInventory.getInventoryName();
         tabSize = tabInventory.getSizeInventory();
         for (Map.Entry<String, TabInventory.Tab> entry : tabInventory.items.entrySet()) {
-            items.put(entry.getKey(), entry.getValue().stacks);
+            ItemStack[] itemStacks = new ItemStack[entry.getValue().getSizeInventory()];
+            for (int i = 0; i < entry.getValue().getSizeInventory(); i++)
+                itemStacks[i] = entry.getValue().getStackInSlot(i);
+
+            items.put(entry.getKey(), itemStacks);
         }
     }
 
@@ -107,7 +111,8 @@ public class TabInventoryItemsMessage implements IMessage {
 
                     // Копируем итемы с сервера в клиентский контейнер
                     for (Map.Entry<String, ItemStack[]> entry : message.items.entrySet()) {
-                        tabInventory.getTab(entry.getKey()).stacks = message.items.get(entry.getKey());
+                        for (int i = 0; i < entry.getValue().length; i++)
+                            tabInventory.getTab(entry.getKey()).setInventorySlotContents(i, entry.getValue()[i]);
                     }
                 } else {
                     System.err.println("В контейнере " + tabContainer.toString() + " не найдет TabInventory с именем " + message.inventoryName);

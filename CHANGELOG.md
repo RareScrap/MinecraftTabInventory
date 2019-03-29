@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.13alpha]
+### Added
+- [TabInventory.Tab теперь реализует IInventory](https://github.com/RareScrap/MinecraftTabInventory/issues/9), хоть и не полностью
+
 ## [0.3.12]
 ### Changed
 - Функции поиска теперь принимают не registry-имя итема, а сам итем

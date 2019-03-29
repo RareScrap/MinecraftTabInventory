@@ -110,9 +110,9 @@ public class TabInventorySync<T extends Container & SupportTabs.Container> {
         List<Change> changes = new ArrayList<Change>();
 
         // Предполагается, что вместимость обоих вкладок одинакова
-        for (int i = 0; i < serverTab.stacks.length; i++) {
-            ItemStack serverStack = serverTab.stacks[i];
-            ItemStack clientStack = clientTab.stacks[i];
+        for (int i = 0; i < serverTab.getSizeInventory(); i++) {
+            ItemStack serverStack = serverTab.getStackInSlot(i);
+            ItemStack clientStack = clientTab.getStackInSlot(i);
 
             boolean result = ItemStack.areItemStacksEqual(clientStack, serverStack);
 
@@ -172,10 +172,10 @@ public class TabInventorySync<T extends Container & SupportTabs.Container> {
             TabInventory suitableClientInv = this.syncState.get(serverInv);
             TabInventory.Tab suitableTab = suitableClientInv.getTab(change.tabName);
             if (change.actualItemStack == null) {
-                suitableTab.setSlotContent(change.slotIndex, null);
+                suitableTab.setInventorySlotContents(change.slotIndex, null);
             } else {
                 // Копируем стак, чтобы клиентский и серверный инвнтари не ссылались на один и тот же объект
-                suitableTab.setSlotContent(change.slotIndex, change.actualItemStack.copy());
+                suitableTab.setInventorySlotContents(change.slotIndex, change.actualItemStack.copy());
             }
         }
     }
